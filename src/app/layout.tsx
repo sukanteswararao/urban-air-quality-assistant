@@ -12,7 +12,7 @@ const plusJakartaSans = Plus_Jakarta_Sans({
 export const metadata: Metadata = {
   title: "BreatheSafe — Community Atmospheric Intelligence & Family Air Health",
   description:
-    "A human-first GenAI assistant helping families navigate severe winter smog and urban air pollution with personalized daily routines, indoor air quality hacks, and sustainable community alternatives.",
+    "A clean air platform helping families navigate severe winter smog and urban air pollution with personalized daily routines, indoor air quality hacks, and sustainable community alternatives.",
 };
 
 export default function RootLayout({

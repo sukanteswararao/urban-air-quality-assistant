@@ -93,11 +93,11 @@ export function VisionInspector({ telemetry }: VisionInspectorProps) {
                         <div className="flex items-center gap-2">
                             <span className="flex h-2 w-2 rounded-full bg-violet-500 animate-ping" />
                             <h3 className="text-base font-bold tracking-tight text-slate-900">
-                                SkyWatch: AI Haze & Sky Inspector
+                                SkyWatch: Optical Haze & Horizon Inspector
                             </h3>
                         </div>
                         <p className="mt-0.5 text-xs text-slate-500">
-                            Multimodal Gemini vision checks particulate scattering against live {telemetry.city.name} sensors
+                            Optical analysis correlates particulate scattering against live {telemetry.city.name} sensors
                         </p>
                     </div>
 
@@ -139,7 +139,7 @@ export function VisionInspector({ telemetry }: VisionInspectorProps) {
                             Snap outdoor horizon or upload monitor display
                         </h4>
                         <p className="mt-1 text-[11px] leading-relaxed text-slate-400">
-                            Gemini measures optical contrast attenuation and confirms if local sensor telemetry aligns with visual reality.
+                            Optical contrast attenuation confirms if local sensor telemetry aligns with visual ground reality.
                         </p>
                     </div>
                 )}
@@ -148,7 +148,7 @@ export function VisionInspector({ telemetry }: VisionInspectorProps) {
                 {loading && (
                     <div className="mt-4 flex items-center gap-3 rounded-2xl border border-violet-100 bg-violet-50/60 p-4 text-xs font-medium text-violet-700">
                         <Loader2 className="h-4 w-4 animate-spin shrink-0 text-violet-600" />
-                        <span>Analyzing optical haze density & Rayleigh scattering with Gemini...</span>
+                        <span>Analyzing optical haze density & Rayleigh scattering...</span>
                     </div>
                 )}
 
@@ -172,7 +172,7 @@ export function VisionInspector({ telemetry }: VisionInspectorProps) {
                                 />
                                 <div className="absolute top-2 left-2 rounded-full bg-slate-900/70 backdrop-blur-md px-2.5 py-0.5 text-[10px] font-medium text-white flex items-center gap-1">
                                     <Sparkles className="h-3 w-3 text-violet-300" />
-                                    <span>Gemini Vision Analyzed</span>
+                                    <span>Optical Horizon Analyzed</span>
                                 </div>
                             </div>
                         )}
@@ -241,7 +241,7 @@ export function VisionInspector({ telemetry }: VisionInspectorProps) {
             {/* Micro footer */}
             <div className="mt-4 pt-3 border-t border-slate-100 flex items-center justify-between text-[11px] text-slate-400">
                 <span>Multi-spectral particulate correlation</span>
-                <span className="font-semibold text-slate-600">Open-Meteo &bull; Gemini 3.5</span>
+                <span className="font-semibold text-slate-600">Open-Meteo &bull; Optical Sensor Correlation</span>
             </div>
         </div>
     );

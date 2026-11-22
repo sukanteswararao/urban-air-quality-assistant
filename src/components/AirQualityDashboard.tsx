@@ -48,8 +48,6 @@ import {
 } from "@/lib/open-meteo";
 import { PollutantChart } from "./PollutantChart";
 import { VisionInspector } from "./VisionInspector";
-import { GeminiChatbot } from "./GeminiChatbot";
-import { TelemetryCopilot } from "./TelemetryCopilot";
 
 const PROFILES: { id: UserProfile; title: string; subtitle: string; icon: React.ReactNode }[] = [
     {
@@ -172,7 +170,6 @@ export function AirQualityDashboard({
     const [searching, setSearching] = useState(false);
     const [cityBrowserOpen, setCityBrowserOpen] = useState(false);
     const [detectingLocation, setDetectingLocation] = useState(false);
-    const [copilotOpen, setCopilotOpen] = useState(false);
 
     // Interactive Family Air Shield Checklist State
     const [checkedItems, setCheckedItems] = useState<Record<number, boolean>>({
@@ -213,17 +210,6 @@ export function AirQualityDashboard({
     useEffect(() => {
         fetchAdvice(telemetry, profile);
     }, [telemetry, profile, fetchAdvice]);
-
-    useEffect(() => {
-        const onKeyDown = (e: KeyboardEvent) => {
-            if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === "k") {
-                e.preventDefault();
-                setCopilotOpen((prev) => !prev);
-            }
-        };
-        window.addEventListener("keydown", onKeyDown);
-        return () => window.removeEventListener("keydown", onKeyDown);
-    }, []);
 
     async function handleCitySearch(val: string) {
         setQuery(val);
@@ -306,7 +292,7 @@ export function AirQualityDashboard({
                                     BreatheSafe
                                 </span>
                                 <span className="rounded-full border border-emerald-200 bg-emerald-50 px-2 py-0.5 text-[10px] font-bold text-emerald-800">
-                                    VAYU AI
+                                    REAL-TIME MONITOR
                                 </span>
                             </div>
                             <p className="text-[11px] text-slate-500 font-medium">
@@ -354,19 +340,6 @@ export function AirQualityDashboard({
                                 </span>
                             )}
                         </div>
-
-                        {/* Ask Gemini AI Button */}
-                        <button
-                            type="button"
-                            onClick={() => setCopilotOpen(true)}
-                            className="inline-flex items-center gap-2 rounded-2xl bg-gradient-to-r from-blue-600 via-indigo-600 to-violet-600 px-4 py-2 text-xs font-bold text-white shadow-sm transition hover:opacity-90 active:scale-98"
-                        >
-                            <Sparkles className="h-3.5 w-3.5 text-white animate-pulse" />
-                            <span className="hidden sm:inline">Ask Gemini AI</span>
-                            <kbd className="hidden rounded bg-white/20 px-1 py-0.5 text-[10px] text-white font-mono sm:inline">
-                                ⌘K
-                            </kbd>
-                        </button>
                     </div>
                 </div>
             </header>
@@ -648,13 +621,13 @@ export function AirQualityDashboard({
                         </div>
                     </div>
 
-                    {/* AI Executive Summary for the User's Profile */}
+                    {/* Clinical & Exposure Advisory for the User's Profile */}
                     {advice && !analyzing && (
                         <div className="mt-6 pt-5 border-t border-slate-100 flex items-start gap-3">
-                            <Sparkles className="h-5 w-5 text-emerald-600 shrink-0 mt-0.5" />
+                            <ShieldCheck className="h-5 w-5 text-emerald-600 shrink-0 mt-0.5" />
                             <div>
                                 <span className="text-xs font-bold uppercase tracking-wider text-slate-400 block">
-                                    Vayu AI Assessment for {PROFILES.find((p) => p.id === profile)?.title}:
+                                    Health & Exposure Advisory for {PROFILES.find((p) => p.id === profile)?.title}:
                                 </span>
                                 <p className="mt-1 text-xs text-slate-700 leading-relaxed">
                                     {advice.summary}
@@ -727,7 +700,7 @@ export function AirQualityDashboard({
                         <div className="flex items-center gap-3">
                             <div className="h-5 w-5 animate-spin rounded-full border-2 border-emerald-200 border-t-emerald-600" />
                             <p className="text-sm font-semibold text-slate-700">
-                                Vayu AI is synthesizing real-time atmospheric readings for {telemetry.city.name}...
+                                Synthesizing real-time atmospheric readings for {telemetry.city.name}...
                             </p>
                         </div>
                         <div className="mt-4 space-y-3">
@@ -754,31 +727,6 @@ export function AirQualityDashboard({
                         <VisionInspector telemetry={telemetry} />
                     </div>
                 </div>
-
-                {/* GEMINI CHATBOT AI SECTION (PROMINENT DEDICATED INLINE CHAT) */}
-                <section className="space-y-3">
-                    <div className="flex items-center justify-between">
-                        <div className="flex items-center gap-2.5">
-                            <div className="flex h-7 w-7 items-center justify-center rounded-xl bg-gradient-to-tr from-blue-600 via-indigo-600 to-violet-600 text-white shadow-xs">
-                                <Sparkles className="h-4 w-4" />
-                            </div>
-                            <div>
-                                <h3 className="text-base font-bold tracking-tight text-slate-900">
-                                    Google Gemini Air Quality Chatbot AI
-                                </h3>
-                                <p className="text-[11px] text-slate-500">
-                                    Ask anything &bull; Grounded in live {telemetry.city.name} sensor telemetry
-                                </p>
-                            </div>
-                        </div>
-                        <span className="rounded-full bg-blue-50 border border-blue-200 px-3 py-1 text-[10px] font-bold text-blue-800 flex items-center gap-1.5 shadow-2xs">
-                            <span className="h-1.5 w-1.5 rounded-full bg-emerald-500 animate-pulse" />
-                            Gemini 3.5 Active
-                        </span>
-                    </div>
-
-                    <GeminiChatbot telemetry={telemetry} profile={profile} />
-                </section>
 
                 {/* GAMIFIED "FAMILY AIR SHIELD" CHECKLIST */}
                 {advice && !analyzing && (
@@ -1064,44 +1012,13 @@ export function AirQualityDashboard({
                 {/* FOOTER: HACKATHON CREDIT & SENSOR CITATIONS */}
                 <footer className="mt-12 pt-8 border-t border-slate-200/80 text-center space-y-2">
                     <p className="text-xs font-semibold text-slate-600">
-                        BreatheSafe &bull; Created for Hack2Skill Hackathon &bull; Powered by Google Gemini GenAI
+                        BreatheSafe &bull; Created for Hack2Skill Clean Air Hackathon &bull; Real-Time Urban Protection Platform
                     </p>
                     <p className="text-[11px] text-slate-400">
                         Atmospheric surface data from Open-Meteo European Meteorological Service &bull; WHO 2021 Global Air Quality Guidelines
                     </p>
                 </footer>
             </main>
-
-            {/* Floating Quick Action Trigger on Bottom Right */}
-            <button
-                type="button"
-                onClick={() => setCopilotOpen((prev) => !prev)}
-                className="fixed bottom-6 right-6 z-40 flex items-center gap-2.5 rounded-full bg-gradient-to-r from-blue-600 via-indigo-600 to-violet-600 px-5 py-3 text-xs font-bold text-white shadow-2xl hover:opacity-95 transition active:scale-95 group cursor-pointer border border-white/20"
-            >
-                <Sparkles className="h-4 w-4 text-white animate-spin" />
-                <span>Gemini Chatbot AI</span>
-                <span className="hidden sm:inline bg-white/20 rounded px-1.5 py-0.5 text-[10px] font-mono">⌘K</span>
-            </button>
-
-            {/* Floating Gemini Chatbot Overlay Window */}
-            {copilotOpen && (
-                <div
-                    className="fixed inset-0 z-50 flex items-end sm:items-center justify-end p-0 sm:p-6 bg-slate-900/40 backdrop-blur-xs animate-in fade-in duration-200"
-                    onClick={() => setCopilotOpen(false)}
-                >
-                    <div
-                        className="w-full sm:w-[460px] h-[600px] max-h-[90vh] rounded-t-3xl sm:rounded-3xl shadow-2xl overflow-hidden border border-slate-200 animate-in slide-in-from-bottom sm:slide-in-from-right duration-250"
-                        onClick={(e) => e.stopPropagation()}
-                    >
-                        <GeminiChatbot
-                            telemetry={telemetry}
-                            profile={profile}
-                            isFloating={true}
-                            onClose={() => setCopilotOpen(false)}
-                        />
-                    </div>
-                </div>
-            )}
         </div>
     );
 }
