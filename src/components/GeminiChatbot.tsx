@@ -12,11 +12,8 @@ import {
     Bike,
     Home,
     Shield,
-    Bot,
     User,
-    ChevronDown,
     Minimize2,
-    Maximize2,
 } from "lucide-react";
 import { TelemetrySnapshot, UserProfile } from "@/types/air-quality";
 
@@ -138,7 +135,7 @@ export function GeminiChatbot({
                 },
             ]);
         }
-    }, [telemetry.city.name, telemetry.current.usAqi, telemetry.current.pm25]);
+    }, [telemetry]);
 
     useEffect(() => {
         messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });

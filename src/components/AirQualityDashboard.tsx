@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import {
     Activity,
     AlertCircle,
@@ -8,28 +8,20 @@ import {
     Baby,
     Bike,
     Check,
-    CheckCircle2,
     ChevronDown,
     Clock,
-    Compass,
     Droplets,
-    Eye,
     Globe,
     Heart,
     Home,
-    Info,
     Leaf,
     Lightbulb,
     MapPin,
-    MessageCircle,
     Navigation,
     Search,
     Shield,
     ShieldCheck,
-    Sparkles,
     Sun,
-    TreePine,
-    Users,
     Wind,
     X,
 } from "lucide-react";
@@ -183,33 +175,44 @@ export function AirQualityDashboard({
     // Indoor hacks filter
     const [hackFilter, setHackFilter] = useState<"All" | "Free" | "Low">("All");
 
-    const fetchAdvice = useCallback(
-        async (snap: TelemetrySnapshot, selectedProfile: UserProfile) => {
-            setAnalyzing(true);
-            setAnalysisError(null);
-            try {
-                const res = await fetch("/api/analyze", {
-                    method: "POST",
-                    headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify({ telemetry: snap, profile: selectedProfile }),
-                });
+    useEffect(() => {
+        let isMounted = true;
+        const controller = new AbortController();
+
+        queueMicrotask(() => {
+            if (isMounted) {
+                setAnalyzing(true);
+                setAnalysisError(null);
+            }
+        });
+
+        fetch("/api/analyze", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ telemetry, profile }),
+            signal: controller.signal,
+        })
+            .then(async (res) => {
                 const data = await res.json();
                 if (!res.ok) throw new Error(data.error || "Analysis failed");
-                setAdvice(data.analysis);
-            } catch (err) {
-                setAnalysisError(
-                    err instanceof Error ? err.message : "Could not retrieve air quality advice."
-                );
-            } finally {
-                setAnalyzing(false);
-            }
-        },
-        []
-    );
+                if (isMounted) setAdvice(data.analysis);
+            })
+            .catch((err) => {
+                if (err.name !== "AbortError" && isMounted) {
+                    setAnalysisError(
+                        err instanceof Error ? err.message : "Could not retrieve air quality advice."
+                    );
+                }
+            })
+            .finally(() => {
+                if (isMounted) setAnalyzing(false);
+            });
 
-    useEffect(() => {
-        fetchAdvice(telemetry, profile);
-    }, [telemetry, profile, fetchAdvice]);
+        return () => {
+            isMounted = false;
+            controller.abort();
+        };
+    }, [telemetry, profile]);
 
     async function handleCitySearch(val: string) {
         setQuery(val);
@@ -310,6 +313,7 @@ export function AirQualityDashboard({
                                 value={query}
                                 onChange={(e) => handleCitySearch(e.target.value)}
                                 placeholder="Search any city worldwide..."
+                                aria-label="Search city worldwide"
                                 className="w-48 sm:w-64 rounded-2xl border border-slate-200 bg-slate-50/80 py-2 pl-9 pr-3 text-xs font-medium text-slate-900 placeholder-slate-400 transition focus:border-emerald-500 focus:bg-white focus:outline-none shadow-2xs"
                             />
                             {searchResults.length > 0 && (
@@ -464,6 +468,9 @@ export function AirQualityDashboard({
                                 <button
                                     key={p.id}
                                     type="button"
+                                    role="radio"
+                                    aria-checked={isSelected}
+                                    aria-label={`${p.title} profile: ${p.subtitle}`}
                                     onClick={() => setProfile(p.id)}
                                     className={`flex items-start gap-3 rounded-2xl border p-3.5 text-left transition ${
                                         isSelected
@@ -965,6 +972,10 @@ export function AirQualityDashboard({
                                         step="50"
                                         value={familyCount}
                                         onChange={(e) => setFamilyCount(Number(e.target.value))}
+                                        aria-label="Participating families in community impact calculation"
+                                        aria-valuenow={familyCount}
+                                        aria-valuemin={50}
+                                        aria-valuemax={5000}
                                         className="h-2 w-36 sm:w-48 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-emerald-600"
                                     />
                                     <span className="text-xs font-bold text-slate-800 shrink-0 w-16 text-right">

@@ -4,7 +4,6 @@ import { useEffect, useRef, useState } from "react";
 import {
     Loader2,
     Send,
-    MessageCircle,
     X,
     Sparkles,
     Copy,
@@ -14,7 +13,6 @@ import {
     Home,
     Shield,
     RotateCcw,
-    CornerDownLeft,
 } from "lucide-react";
 import { TelemetrySnapshot, UserProfile } from "@/types/air-quality";
 

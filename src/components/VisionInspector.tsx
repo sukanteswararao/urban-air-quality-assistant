@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { Camera, Eye, Loader2, Sparkles, AlertCircle, RefreshCw, CheckCircle2 } from "lucide-react";
+import { Camera, Eye, Loader2, Sparkles, AlertCircle, CheckCircle2 } from "lucide-react";
 import { TelemetrySnapshot, VisionInspectionResult } from "@/types/air-quality";
 
 interface VisionInspectorProps {
@@ -107,6 +107,7 @@ export function VisionInspector({ telemetry }: VisionInspectorProps) {
                         <input
                             type="file"
                             accept="image/*"
+                            aria-label="Upload outdoor horizon or monitor photo"
                             onChange={handleFileChange}
                             className="hidden"
                         />
@@ -122,6 +123,7 @@ export function VisionInspector({ telemetry }: VisionInspectorProps) {
                             type="button"
                             onClick={() => loadPresetSample(preset)}
                             disabled={loading}
+                            aria-label={`Test preset scenario: ${preset.label} - ${preset.location}`}
                             className="rounded-full border border-slate-200 bg-slate-50 px-2.5 py-1 text-[11px] font-medium text-slate-600 transition hover:border-slate-300 hover:bg-white disabled:opacity-50"
                         >
                             {preset.label}
@@ -165,6 +167,7 @@ export function VisionInspector({ telemetry }: VisionInspectorProps) {
                     <div className="mt-4 space-y-3.5">
                         {preview && (
                             <div className="relative overflow-hidden rounded-2xl border border-slate-200">
+                                {/* eslint-disable-next-line @next/next/no-img-element */}
                                 <img
                                     src={preview}
                                     alt="Sky analysis preview"
