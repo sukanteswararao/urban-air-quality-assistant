@@ -30,6 +30,27 @@ const PROFILE_LABELS: Record<UserProfile, string> = {
 };
 
 /**
+ * Direct REST fallback to Google's official Gemini endpoint
+ */
+async function callDirectRest(prompt: string, model = "gemini-3.5-flash-lite"): Promise<string> {
+    const apiKey = process.env.GEMINI_API_KEY;
+    if (!apiKey) throw new Error("GEMINI_API_KEY is missing");
+    const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`;
+    const res = await fetch(url, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+            contents: [{ parts: [{ text: prompt }] }],
+        }),
+    });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.error?.message || "REST API error");
+    const text = data.candidates?.[0]?.content?.parts?.[0]?.text;
+    if (!text) throw new Error("Empty candidate response");
+    return text;
+}
+
+/**
  * Execute Gemini generateContent with automatic model fallback
  */
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -49,6 +70,17 @@ async function callGeminiWithFallback(params: any) {
             console.warn(`[Gemini] Model ${model} failed, trying next candidate...`, err);
         }
     }
+
+    // Secondary Direct REST fallback if SDK calls encountered issues
+    if (typeof params.contents === "string") {
+        try {
+            const restText = await callDirectRest(params.contents);
+            return { text: restText };
+        } catch (restErr) {
+            console.warn("[Gemini] Direct REST fallback also failed:", restErr);
+        }
+    }
+
     throw lastError;
 }
 

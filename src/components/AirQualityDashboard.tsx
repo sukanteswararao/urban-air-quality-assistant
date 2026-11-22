@@ -48,6 +48,7 @@ import {
 } from "@/lib/open-meteo";
 import { PollutantChart } from "./PollutantChart";
 import { VisionInspector } from "./VisionInspector";
+import { GeminiChatbot } from "./GeminiChatbot";
 import { TelemetryCopilot } from "./TelemetryCopilot";
 
 const PROFILES: { id: UserProfile; title: string; subtitle: string; icon: React.ReactNode }[] = [
@@ -354,15 +355,15 @@ export function AirQualityDashboard({
                             )}
                         </div>
 
-                        {/* Ask Copilot Button */}
+                        {/* Ask Gemini AI Button */}
                         <button
                             type="button"
                             onClick={() => setCopilotOpen(true)}
-                            className="inline-flex items-center gap-2 rounded-2xl bg-slate-900 px-4 py-2 text-xs font-bold text-white shadow-sm transition hover:bg-slate-800 active:scale-98"
+                            className="inline-flex items-center gap-2 rounded-2xl bg-gradient-to-r from-blue-600 via-indigo-600 to-violet-600 px-4 py-2 text-xs font-bold text-white shadow-sm transition hover:opacity-90 active:scale-98"
                         >
-                            <MessageCircle className="h-3.5 w-3.5 text-emerald-400" />
-                            <span className="hidden sm:inline">Ask Copilot</span>
-                            <kbd className="hidden rounded bg-slate-800 px-1 py-0.5 text-[10px] text-slate-300 font-mono sm:inline">
+                            <Sparkles className="h-3.5 w-3.5 text-white animate-pulse" />
+                            <span className="hidden sm:inline">Ask Gemini AI</span>
+                            <kbd className="hidden rounded bg-white/20 px-1 py-0.5 text-[10px] text-white font-mono sm:inline">
                                 ⌘K
                             </kbd>
                         </button>
@@ -754,6 +755,31 @@ export function AirQualityDashboard({
                     </div>
                 </div>
 
+                {/* GEMINI CHATBOT AI SECTION (PROMINENT DEDICATED INLINE CHAT) */}
+                <section className="space-y-3">
+                    <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-2.5">
+                            <div className="flex h-7 w-7 items-center justify-center rounded-xl bg-gradient-to-tr from-blue-600 via-indigo-600 to-violet-600 text-white shadow-xs">
+                                <Sparkles className="h-4 w-4" />
+                            </div>
+                            <div>
+                                <h3 className="text-base font-bold tracking-tight text-slate-900">
+                                    Google Gemini Air Quality Chatbot AI
+                                </h3>
+                                <p className="text-[11px] text-slate-500">
+                                    Ask anything &bull; Grounded in live {telemetry.city.name} sensor telemetry
+                                </p>
+                            </div>
+                        </div>
+                        <span className="rounded-full bg-blue-50 border border-blue-200 px-3 py-1 text-[10px] font-bold text-blue-800 flex items-center gap-1.5 shadow-2xs">
+                            <span className="h-1.5 w-1.5 rounded-full bg-emerald-500 animate-pulse" />
+                            Gemini 3.5 Active
+                        </span>
+                    </div>
+
+                    <GeminiChatbot telemetry={telemetry} profile={profile} />
+                </section>
+
                 {/* GAMIFIED "FAMILY AIR SHIELD" CHECKLIST */}
                 {advice && !analyzing && (
                     <section className="rounded-3xl border border-slate-200/90 bg-white p-6 sm:p-8 shadow-sm">
@@ -1049,23 +1075,33 @@ export function AirQualityDashboard({
             {/* Floating Quick Action Trigger on Bottom Right */}
             <button
                 type="button"
-                onClick={() => setCopilotOpen(true)}
-                className="fixed bottom-6 right-6 z-30 flex items-center gap-2.5 rounded-full bg-slate-900 px-5 py-3 text-xs font-bold text-white shadow-xl hover:bg-slate-800 transition active:scale-95 group border border-slate-700/80 cursor-pointer"
+                onClick={() => setCopilotOpen((prev) => !prev)}
+                className="fixed bottom-6 right-6 z-40 flex items-center gap-2.5 rounded-full bg-gradient-to-r from-blue-600 via-indigo-600 to-violet-600 px-5 py-3 text-xs font-bold text-white shadow-2xl hover:opacity-95 transition active:scale-95 group cursor-pointer border border-white/20"
             >
-                <div className="flex h-5 w-5 items-center justify-center rounded-full bg-emerald-500 text-slate-950">
-                    <Sparkles className="h-3 w-3" />
-                </div>
-                <span>Ask Vayu Copilot</span>
-                <span className="hidden sm:inline text-slate-400 font-mono text-[10px]">⌘K</span>
+                <Sparkles className="h-4 w-4 text-white animate-spin" />
+                <span>Gemini Chatbot AI</span>
+                <span className="hidden sm:inline bg-white/20 rounded px-1.5 py-0.5 text-[10px] font-mono">⌘K</span>
             </button>
 
-            {/* Slide-Over Copilot Drawer */}
-            <TelemetryCopilot
-                open={copilotOpen}
-                onClose={() => setCopilotOpen(false)}
-                telemetry={telemetry}
-                profile={profile}
-            />
+            {/* Floating Gemini Chatbot Overlay Window */}
+            {copilotOpen && (
+                <div
+                    className="fixed inset-0 z-50 flex items-end sm:items-center justify-end p-0 sm:p-6 bg-slate-900/40 backdrop-blur-xs animate-in fade-in duration-200"
+                    onClick={() => setCopilotOpen(false)}
+                >
+                    <div
+                        className="w-full sm:w-[460px] h-[600px] max-h-[90vh] rounded-t-3xl sm:rounded-3xl shadow-2xl overflow-hidden border border-slate-200 animate-in slide-in-from-bottom sm:slide-in-from-right duration-250"
+                        onClick={(e) => e.stopPropagation()}
+                    >
+                        <GeminiChatbot
+                            telemetry={telemetry}
+                            profile={profile}
+                            isFloating={true}
+                            onClose={() => setCopilotOpen(false)}
+                        />
+                    </div>
+                </div>
+            )}
         </div>
     );
 }
