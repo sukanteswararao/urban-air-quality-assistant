@@ -5,10 +5,11 @@ import { TelemetrySnapshot, UserProfile } from "@/types/air-quality";
 export async function POST(req: NextRequest) {
     try {
         const body = await req.json();
-        const { question, telemetry, profile } = body as {
+        const { question, telemetry, profile, history } = body as {
             question?: string;
             telemetry?: TelemetrySnapshot;
             profile?: UserProfile;
+            history?: { role: "user" | "assistant"; content: string }[];
         };
 
         if (!question || !telemetry) {
@@ -18,7 +19,8 @@ export async function POST(req: NextRequest) {
         const reply = await askTelemetryCopilot(
             question,
             telemetry,
-            profile ?? "general_commuter"
+            profile ?? "general_commuter",
+            history ?? []
         );
         return NextResponse.json({ reply });
     } catch (err) {

@@ -1046,6 +1046,19 @@ export function AirQualityDashboard({
                 </footer>
             </main>
 
+            {/* Floating Quick Action Trigger on Bottom Right */}
+            <button
+                type="button"
+                onClick={() => setCopilotOpen(true)}
+                className="fixed bottom-6 right-6 z-30 flex items-center gap-2.5 rounded-full bg-slate-900 px-5 py-3 text-xs font-bold text-white shadow-xl hover:bg-slate-800 transition active:scale-95 group border border-slate-700/80 cursor-pointer"
+            >
+                <div className="flex h-5 w-5 items-center justify-center rounded-full bg-emerald-500 text-slate-950">
+                    <Sparkles className="h-3 w-3" />
+                </div>
+                <span>Ask Vayu Copilot</span>
+                <span className="hidden sm:inline text-slate-400 font-mono text-[10px]">⌘K</span>
+            </button>
+
             {/* Slide-Over Copilot Drawer */}
             <TelemetryCopilot
                 open={copilotOpen}

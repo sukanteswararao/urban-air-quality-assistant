@@ -328,31 +328,46 @@ Assess the sky visibility and haze level in this photo. Tell us if what you see 
 }
 
 /**
- * Family-friendly AI copilot powered by Gemini Flash.
+ * Family-friendly AI copilot powered by Gemini Flash with multi-turn conversation memory.
  */
 export async function askTelemetryCopilot(
     question: string,
     telemetry: TelemetrySnapshot,
-    profile: UserProfile
+    profile: UserProfile,
+    history?: { role: "user" | "assistant"; content: string }[]
 ): Promise<string> {
-    const systemInstruction = `You are BreatheSafe, a friendly and knowledgeable air quality assistant for families in ${telemetry.city.name}, ${telemetry.city.country}.
+    const aqiValues = (telemetry.hourly || []).map((h) => h.usAqi).filter((v) => !isNaN(v));
+    const minAqi = aqiValues.length > 0 ? Math.min(...aqiValues) : telemetry.current.usAqi;
+    const maxAqi = aqiValues.length > 0 ? Math.max(...aqiValues) : telemetry.current.usAqi;
 
-You're talking to a ${PROFILE_LABELS[profile]}.
+    const systemInstruction = `You are BreatheSafe Copilot, an empathetic, evidence-backed environmental health advisor for families in ${telemetry.city.name}, ${telemetry.city.country}.
 
-Current sensor readings: AQI ${telemetry.current.usAqi}, PM2.5 ${telemetry.current.pm25} µg/m³, PM10 ${telemetry.current.pm10} µg/m³, NO2 ${telemetry.current.no2} µg/m³, O3 ${telemetry.current.o3} µg/m³.
-Today's AQI range: ${Math.min(...telemetry.hourly.map((h) => h.usAqi))} to ${Math.max(...telemetry.hourly.map((h) => h.usAqi))}.
+User Lifestyle Profile: ${PROFILE_LABELS[profile]}.
+Live Sensor Telemetry:
+- Current US AQI: ${telemetry.current.usAqi}
+- PM2.5: ${telemetry.current.pm25} µg/m³ (WHO safe threshold: 15 µg/m³)
+- PM10: ${telemetry.current.pm10} µg/m³ | NO2: ${telemetry.current.no2} µg/m³ | O3: ${telemetry.current.o3} µg/m³
+- 24-Hour Forecast AQI Range: ${minAqi} to ${maxAqi}
 
-Guidelines:
-- Use warm, simple language like you're talking to a friend
-- Reference the actual numbers above to give specific advice
-- Keep answers to 3-5 practical sentences
-- If asked about outdoor activities, mention the safest time window based on the hourly data
-- Always prioritize children's and elderly people's safety
-- Suggest actionable steps, not just warnings`;
+Conversation Guidelines:
+1. Speak warmly, respectfully, and practically like a trusted community health physician or environmental engineer.
+2. Direct, actionable answers: Give clear verdicts (e.g. "Yes, but wait until 11 AM", "No, use an indoor treadmill today", "Use an N95 mask with dual straps").
+3. Always cite the exact live numbers above so the user knows this is grounded in real sensor telemetry.
+4. Keep answers concise (3 to 5 clear sentences). Use bullet points if listing steps.
+5. Emphasize child, infant, and senior lung protection when relevant.`;
+
+    const historyText = (history || [])
+        .slice(-6)
+        .map((m) => `${m.role === "user" ? "User" : "BreatheSafe Copilot"}: ${m.content}`)
+        .join("\n\n");
+
+    const fullPrompt = historyText
+        ? `Recent Conversation Context:\n${historyText}\n\nUser Question: ${question}`
+        : question;
 
     try {
         const response = await callGeminiWithFallback({
-            contents: question,
+            contents: fullPrompt,
             config: {
                 systemInstruction,
                 temperature: 0.4,
